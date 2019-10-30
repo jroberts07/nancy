@@ -206,7 +206,8 @@ func TestAuditPackages_SinglePackage_Cached(t *testing.T) {
 	assert.Nil(t, err)
 	assert.Nil(t, db.Update(func(txn *badger.Txn) error {
 		var coordJson, _ = json.Marshal(expectedCoordinate)
-		err := txn.SetWithTTL([]byte(strings.ToLower(lowerCasePurl)), []byte(coordJson), time.Hour*12)
+		e := badger.NewEntry([]byte(strings.ToLower(lowerCasePurl)), []byte(coordJson)).WithTTL(time.Hour*12)
+		err := txn.SetEntry(e)
 		if err != nil {
 			return err
 		}
@@ -234,7 +235,9 @@ func TestAuditPackages_SinglePackage_Cached_WithExpiredTTL(t *testing.T) {
 	assert.Nil(t, err)
 	assert.Nil(t, db.Update(func(txn *badger.Txn) error {
 		var coordJson, _ = json.Marshal(expectedCoordinate)
-		err := txn.SetWithTTL([]byte(strings.ToLower(lowerCasePurl)), []byte(coordJson), time.Second*1)
+		e := badger.NewEntry([]byte(strings.ToLower(lowerCasePurl)), []byte(coordJson)).WithTTL(time.Second*1)
+		err := txn.SetEntry(e)
+
 		if err != nil {
 			return err
 		}
